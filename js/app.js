@@ -41,7 +41,7 @@ angular.module('starter', ['ionic','ngCordova','ngCordovaOauth'])
 
 })
 
-.config( function ($stateProvider){
+.config( function ($stateProvider,$urlRouterProvider){
 
 
 
@@ -68,10 +68,13 @@ angular.module('starter', ['ionic','ngCordova','ngCordovaOauth'])
     templateUrl:'views/misc.html'
   });
 
+  $urlRouterProvider.otherwise('/');
+
+
 
 })
 
-.controller('MCtrl', function($scope,$cordovaOauth,$cordovaSocialSharing,$ionicActionSheet,$timeout,$ionicSideMenuDelegate,Camera,$ionicSlideBoxDelegate) {
+.controller('MCtrl', function($scope,$http,$cordovaOauth,$cordovaSocialSharing,$ionicActionSheet,$timeout,$ionicSideMenuDelegate,Camera,$ionicSlideBoxDelegate) {
 
 
   $scope.toggleLeftMenu = function() {
@@ -83,12 +86,27 @@ angular.module('starter', ['ionic','ngCordova','ngCordovaOauth'])
 
   //beware:set all redirect_uri as http://localhost/callback
   $scope.facebookLogin=function(){
+
     console.log('Facebook');
     var client_id="1748083488747758"
-    var appScope=['public_profile'];
+    var appScope=['email','public_profile'];
 
     $cordovaOauth.facebook(client_id,appScope).then(function(result){
-      alert(result);
+      //alert(JSON.stringify(result));
+      var token=result.access_token;
+
+      $http({
+        method:'GET',
+        url:'https://graph.facebook.com/me?access_token='+token+''
+      }).then(function(success){
+        alert(JSON.stringify(success));
+
+      },function(err){
+           alert(JSON.stringify(err));
+      });
+
+
+
     },function(error){
       console.log('error');
 
@@ -103,6 +121,20 @@ angular.module('starter', ['ionic','ngCordova','ngCordovaOauth'])
 
     $cordovaOauth.google(client_id,appScope).then(function(result){
      console.log(JSON.stringify(result));
+     var token=result.access_token;
+     alert(token);
+     alert(JSON.stringify(result));
+     $http({
+       method:'GET',
+       url:'https://www.googleapis.com/plus/v1/people/me?access_token='+token
+
+     }).then(function(res){
+       alert(JSON.stringify(res));
+
+     },function(error){
+      alert(JSON.strinify(error));
+
+     });
     },function(error){
      console.log(JSON.stringify(result));
    });
@@ -124,7 +156,7 @@ angular.module('starter', ['ionic','ngCordova','ngCordovaOauth'])
   };
 
   $scope.githubLogin=function(){
-
+    //Github Requires a paid accout
     console.log('GithHub');
     var client_id="";//git client_id
     var key="";//git secret key
