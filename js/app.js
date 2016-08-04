@@ -22,7 +22,35 @@ angular.module('starter', ['ionic','ngCordova','ngCordovaOauth'])
     }
   });
 })
-// Camera Factory
+.config( function ($stateProvider,$urlRouterProvider){
+ $stateProvider
+ .state('index', {
+    url: '/',
+    templateUrl: 'views/home.html'
+  })
+  .state('login', {
+    url: '/login',
+    templateUrl: 'views/login.html'
+  })
+  .state('about',{
+    url:'/about',
+    templateUrl:'views/about.html'
+  })
+  .state('register',{
+    url:'/register',
+    templateUrl:'views/register.html'
+
+      })
+  .state('misc',{
+    url:'/misc',
+    templateUrl:'views/misc.html'
+  });
+
+  $urlRouterProvider.otherwise('/');
+
+
+
+})
 .factory('Camera', function($q) {
 
    return {
@@ -40,42 +68,8 @@ angular.module('starter', ['ionic','ngCordova','ngCordovaOauth'])
    }
 
 })
-
-.config( function ($stateProvider,$urlRouterProvider){
-
-
-
-
- $stateProvider
- .state('index', {
-    url: '/',
-    templateUrl: 'views/home.html'
-  })
-  .state('login', {
-    url: '/login',
-    templateUrl: 'views/login.html'
-  })
-  .state('about',{
-    url:'/about',
-    templateUrl:'views/about.html'
-  })
-  .state('register',{
-    url:'/register',
-    templateUrl:'views/register.html'
-  })
-  .state('misc',{
-    url:'/misc',
-    templateUrl:'views/misc.html'
-  });
-
-  $urlRouterProvider.otherwise('/');
-
-
-
-})
-
-.controller('MCtrl', function($scope,$http,$cordovaOauth,$cordovaSocialSharing,$ionicActionSheet,$timeout,$ionicSideMenuDelegate,Camera,$ionicSlideBoxDelegate) {
-
+.controller('MCtrl', function($scope,$cordovaInstagram,$http,$cordovaOauth,$cordovaSocialSharing,$ionicActionSheet,$timeout,$ionicSideMenuDelegate,Camera,$ionicSlideBoxDelegate) {
+     console.log($scope.imageName);
 
   $scope.toggleLeftMenu = function() {
     $ionicSideMenuDelegate.toggleLeft();
@@ -100,7 +94,7 @@ angular.module('starter', ['ionic','ngCordova','ngCordovaOauth'])
         url:'https://graph.facebook.com/me?access_token='+token+''
       }).then(function(success){
         alert(JSON.stringify(success));
-
+        $scope.fb_data=JSON.stringify(success);
       },function(err){
            alert(JSON.stringify(err));
       });
@@ -176,12 +170,14 @@ angular.module('starter', ['ionic','ngCordova','ngCordovaOauth'])
  $scope.show=function(){
 var hideSheet=$ionicActionSheet.show({
   buttons:[
-    {text:'<b>Login Via Facebook</b>'},
+    {text:'<b>Share Via Facebook</b>'},
     {text:'<b>Share Sms</b>'},
-    {text:'<b>Share Google</b>'}
+    {text:'<b>Share Whatsapp</b>'},
+     {text:'<b>Share Via Mail</b>'},
+     {text:'<b>Share via Instagram</b>'}
   ],
   destructiveText:'Delete',
-  titleText:'Protocols',
+  titleText:'<b>Protocols</b>',
   cancel:function (){
 
   },
@@ -189,15 +185,100 @@ var hideSheet=$ionicActionSheet.show({
 
       switch(index){
        case 0:
+       var msg="Hello I am Sagar";
+       var img="Ok"
+       var link="http://gda.smogate.com"
+       $cordovaSocialSharing
+       .shareViaFacebook(msg,'http://s6.favim.com/610/150425/adorable-animal-cat-cute-Favim.com-2680526.jpg', link)
+    .then(function(result) {
+      // Success!
+      alert(JSON.stringify(result))
+    }, function(err) {
+      // An error occurred. Show a message to the user
+      alert(JSON.stringify(err));
+    });
           break;
         case 1:
-        $cordovaOauth.google("CLIENT_ID_HERE", ["email"]).then(function(result) {
-    console.log("Response Object -> " + JSON.stringify(result));
-}, function(error) {
-    console.log("Error -> " + error);
-});
+        var message="Hey How are you";
+        var number="8744096752";
+        $cordovaSocialSharing
+    .shareViaSMS(message, number)
+    .then(function(result) {
+      // Success!
+    }, function(err) {
+      // An error occurred. Show a message to the user
+    });
         break;
         case 2:
+        var message="Some Text";
+        // var image="some link";
+        var link="http://gda.smogate.com";
+        $cordovaSocialSharing
+    .shareViaWhatsApp(message,'http://s6.favim.com/610/150425/adorable-animal-cat-cute-Favim.com-2680526.jpg', link)
+    .then(function(result) {
+      // Success!
+      alert(JSON.stringify(result));
+
+    }, function(err) {
+      alert(JSON.stringify(result));
+      // An error occurred. Show a message to the user
+    });
+
+
+          break;
+          case 3:
+          var message="Hello World";
+          var subject="I am Sagar";
+          var toArr="sagar13912@gmail.com";
+         var ccArr=null;
+         var bccArr=null;
+          var file=null;
+          $cordovaSocialSharing
+   .shareViaEmail(message, subject, toArr, ccArr, bccArr, file)
+   .then(function(result) {
+     // Success!
+     alert(JSON.stringify(result));
+   }, function(err) {
+     // An error occurred. Show a message to the user
+     alert(JSON.stringify(err));
+   });
+          break;
+          case 4:
+          // $cordovaInstagram.share('http://s6.favim.com/610/150425/adorable-animal-cat-cute-Favim.com-2680526.jpg','My Cat').then(function(){
+          //    alert('success');
+          // },function(err){
+          //   alert(JSON.stringify(err));
+          // });
+            //  $cordovaSocialSharing
+            //  .shareViaInstagram('Messagre','http://s6.favim.com/610/150425/adorable-animal-cat-cute-Favim.com-2680526.jpg').then(function(){
+            //    alert('success');
+            //  },function(err){
+            //    alert(err);
+            //  });
+            // $cordovaSocialSharing.
+            // shareViaInstagram('Hello Friends',{},function(result){
+            //   alert(JSON.stringify(result));
+            // }, function(err){
+            //   alert(JSON.stringify(err));
+
+            // })
+  
+
+
+
+           $cordovaInstagram.share($scope.picture.data, $scope.picture.caption).then(function() {
+    // Worked
+  }, function(err) {
+    if(err){
+      alert(JSON.stringify(err));
+    } else {
+      alert('success');
+    }
+    // Didn't work
+  });
+
+
+
         break;
 
       }
